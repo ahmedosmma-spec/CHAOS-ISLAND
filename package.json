@@ -1,0 +1,17 @@
+{
+  "name": "chaos-island",
+  "version": "0.2.0",
+  "description": "CHAOS ISLAND - a 3D dark-fantasy open-world survival prototype by AKANAZA Studio",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "setup": "npm install && node scripts/vendor-three.mjs",
+    "start": "node scripts/serve.mjs",
+    "build": "node scripts/build-www.mjs",
+    "test": "node tests/imports.test.mjs && node tests/worldgen.test.mjs && node tests/reach.test.mjs && node tests/starter.test.mjs && node tests/progression.test.mjs",
+    "test:e2e": "python3 tests/e2e.py"
+  },
+  "dependencies": {
+    "three": "0.160.0"
+  }
+}

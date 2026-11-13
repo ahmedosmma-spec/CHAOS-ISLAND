@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0a0d" />
+  <title>CHAOS ISLAND</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <script>
+    // Three.js resolution: use js/vendor/three.module.js when present (offline / Capacitor APK),
+    // otherwise fall back to the CDN. See README.md for how to vendor it.
+    (function () {
+      var cdn = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+      var local = new URL('js/vendor/three.module.js', document.baseURI).href;
+      var url = cdn;
+      try {
+        var x = new XMLHttpRequest();
+        x.open('HEAD', local, false);
+        x.send();
+        if (x.status === 200) url = local;
+      } catch (e) { /* no local copy: use the CDN */ }
+      var map = document.createElement('script');
+      map.type = 'importmap';
+      map.textContent = JSON.stringify({ imports: { three: url } });
+      document.head.appendChild(map);
+    })();
+  </script>
+</head>
+<body>
+  <div id="error-overlay" class="error-overlay" hidden></div>
+  <div id="app">
+
+    <!-- Studio logo splash -->
+    <section id="screen-splash" class="screen active">
+      <div class="splash">
+        <div class="studio-mark" aria-hidden="true">
+          <svg viewBox="0 0 120 120"><path d="M60 8 L108 104 L12 104 Z" /><path d="M60 40 L84 86 L36 86 Z" /></svg>
+        </div>
+        <h1 class="studio-name">AKANAZA</h1>
+        <p class="studio-sub">STUDIO</p>
+      </div>
+    </section>
+
+    <!-- Main menu -->
+    <section id="screen-menu" class="screen">
+      <header class="top-bar">
+        <button id="btn-profile" class="profile-chip" type="button">
+          <span id="profile-skin" class="skin-icon" aria-hidden="true"></span>
+          <span id="profile-name" class="profile-name"></span>
+        </button>
+      </header>
+      <div class="menu-center">
+        <h1 class="game-title">CHAOS ISLAND</h1>
+        <p class="studio-credit" data-i18n="studioCredit"></p>
+        <nav class="menu-buttons">
+          <button class="menu-btn" data-go="create" data-i18n="play"></button>
+          <button class="menu-btn" data-go="multiplayer" data-i18n="multiplayer"></button>
+          <button class="menu-btn" data-go="otherWorlds" data-i18n="otherWorlds"></button>
+          <button class="menu-btn" data-go="settings" data-i18n="settings"></button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- World creation -->
+    <section id="screen-create" class="screen">
+      <header class="top-bar">
+        <button class="ghost-btn" data-go="menu" data-i18n="back"></button>
+        <h2 class="screen-title" data-i18n="createWorld"></h2>
+      </header>
+      <div class="create-layout">
+        <div class="create-form">
+          <label class="field">
+            <span data-i18n="worldName"></span>
+            <input id="world-name" type="text" maxlength="24" />
+          </label>
+
+          <div class="field">
+            <span data-i18n="multiplayerToggle"></span>
+            <button id="world-multiplayer" class="toggle" type="button" aria-pressed="false"></button>
+          </div>
+
+          <div class="field">
+            <span data-i18n="difficulty"></span>
+            <div class="segmented" id="world-difficulty">
+              <button type="button" data-value="easy" data-i18n="easy"></button>
+              <button type="button" data-value="normal" data-i18n="normal"></button>
+              <button type="button" data-value="hard" data-i18n="hard"></button>
+            </div>
+          </div>
+
+          <div class="field">
+            <span data-i18n="islandType"></span>
+            <div class="island-cards" id="world-island">
+              <button type="button" class="island-card" data-value="volcanic">
+                <span class="island-glyph volcanic"></span><span data-i18n="volcanic"></span>
+              </button>
+              <button type="button" class="island-card" data-value="desert">
+                <span class="island-glyph desert"></span><span data-i18n="desert"></span>
+              </button>
+              <button type="button" class="island-card" data-value="forest">
+                <span class="island-glyph forest"></span><span data-i18n="forest"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="create-side">
+          <button id="btn-world-play" class="big-play-btn" type="button" data-i18n="playBtn"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multiplayer (LAN prototype) -->
+    <section id="screen-multiplayer" class="screen">
+      <header class="top-bar">
+        <button class="ghost-btn" data-go="menu" data-i18n="back"></button>
+        <h2 class="screen-title" data-i18n="multiplayer"></h2>
+      </header>
+      <p class="notice" data-i18n="lanPrototype"></p>
+      <div id="lan-list" class="world-list"></div>
+    </section>
+
+    <!-- Other worlds (saved locally) -->
+    <section id="screen-otherWorlds" class="screen">
+      <header class="top-bar">
+        <button class="ghost-btn" data-go="menu" data-i18n="back"></button>
+        <h2 class="screen-title" data-i18n="otherWorlds"></h2>
+      </header>
+      <div id="saved-list" class="world-list"></div>
+    </section>
+
+    <!-- Settings -->
+    <section id="screen-settings" class="screen">
+      <header class="top-bar">
+        <button class="ghost-btn" data-go="menu" data-i18n="back"></button>
+        <h2 class="screen-title" data-i18n="settings"></h2>
+      </header>
+      <div class="settings-list">
+        <div class="field">
+          <span data-i18n="language"></span>
+          <div class="segmented" id="set-language">
+            <button type="button" data-value="en">English</button>
+            <button type="button" data-value="ar">العربية</button>
+          </div>
+        </div>
+        <div class="field">
+          <span data-i18n="graphics"></span>
+          <div class="segmented" id="set-quality">
+            <button type="button" data-value="low" data-i18n="low"></button>
+            <button type="button" data-value="medium" data-i18n="medium"></button>
+            <button type="button" data-value="high" data-i18n="high"></button>
+          </div>
+          <p class="hint" data-i18n="qualityHint"></p>
+        </div>
+        <button class="menu-btn wide" data-go="controls" data-i18n="controls"></button>
+      </div>
+    </section>
+
+    <!-- Controls settings -->
+    <section id="screen-controls" class="screen">
+      <header class="top-bar">
+        <button class="ghost-btn" data-go="settings" data-i18n="back"></button>
+        <h2 class="screen-title" data-i18n="controls"></h2>
+      </header>
+      <div class="settings-list">
+        <div class="field">
+          <span data-i18n="controlScheme"></span>
+          <div class="segmented" id="ctl-scheme">
+            <button type="button" data-value="arrows" data-i18n="arrows"></button>
+            <button type="button" data-value="joystick" data-i18n="joystick"></button>
+          </div>
+        </div>
+        <div class="field">
+          <span data-i18n="controlSize"></span>
+          <input id="ctl-size" type="range" min="0.6" max="1.6" step="0.05" value="1" />
+        </div>
+        <p class="hint" data-i18n="dragHint"></p>
+        <div class="row-buttons">
+          <button class="menu-btn" id="ctl-edit" type="button" data-i18n="editLayout"></button>
+          <button class="menu-btn" id="ctl-save" type="button" data-i18n="saveLayout"></button>
+          <button class="ghost-btn" id="ctl-reset" type="button" data-i18n="resetLayout"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls layout editor: drag and resize the real controls at full size -->
+    <section id="screen-controlEditor" class="screen editor">
+      <div id="editor-layer" class="controls-layer"></div>
+      <header class="top-bar editor-bar">
+        <button class="ghost-btn" id="editor-back" type="button" data-i18n="done"></button>
+        <span class="hint" data-i18n="editorHint"></span>
+        <button class="ghost-btn" id="editor-reset" type="button" data-i18n="resetLayout"></button>
+      </header>
+    </section>
+
+    <!-- Profile / skin -->
+    <section id="screen-profile" class="screen">
+      <header class="top-bar">
+        <button class="ghost-btn" data-go="menu" data-i18n="back"></button>
+        <h2 class="screen-title" data-i18n="profile"></h2>
+      </header>
+      <div class="settings-list">
+        <label class="field">
+          <span data-i18n="profileName"></span>
+          <div class="row-buttons">
+            <input id="profile-input" type="text" maxlength="16" />
+            <button class="ghost-btn" id="profile-random" type="button" data-i18n="randomize"></button>
+          </div>
+        </label>
+        <div class="skin-preview" id="skin-preview"></div>
+        <h3 class="section-label" data-i18n="skin"></h3>
+        <p class="hint" data-i18n="skinHint"></p>
+        <div id="skin-items" class="skin-items"></div>
+        <button class="menu-btn" id="profile-save" type="button" data-i18n="save"></button>
+      </div>
+    </section>
+
+    <!-- Game -->
+    <section id="screen-game" class="screen">
+      <canvas id="game-canvas"></canvas>
+      <div id="hud" class="hud">
+        <div class="bars">
+          <div class="bar health"><i id="bar-health"></i></div>
+          <div class="bar stamina"><i id="bar-stamina"></i></div>
+        </div>
+        <button id="btn-pause" class="hud-btn" type="button">II</button>
+        <button id="btn-inv" class="hud-btn" type="button" data-i18n="inventory"></button>
+        <button id="btn-craft" class="hud-btn" type="button" data-i18n="crafting"></button>
+        <canvas id="minimap" class="minimap" width="96" height="96"></canvas>
+        <div id="hud-msg" class="hud-msg"></div>
+        <div id="hud-prompt" class="hud-prompt"></div>
+        <div id="hud-debug" class="hud-debug"></div>
+      </div>
+      <div id="hud-hurt" class="hud-hurt"></div>
+      <div id="game-loading" class="game-loading"></div>
+      <div id="controls-layer" class="controls-layer"></div>
+      <div id="panel-inventory" class="panel hidden"></div>
+      <div id="panel-crafting" class="panel hidden"></div>
+      <div id="panel-pause" class="panel hidden"></div>
+    </section>
+
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
